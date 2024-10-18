@@ -76,3 +76,36 @@ handleClick(curt, html, 'descanso-curto','/assets/imagens/descanso-curto.png');
 
 handleClick(long, html, 'descanso-longo','/assets/imagens/descanso-longo.png');
 
+/* ========== Estrutura de controle de Musica do POMODORO ========== */
+
+
+const audio = new Audio('/assets/sons/luna-rise-part-one.mp3');
+
+const music = tag('#alternar-musica');
+
+audio.preload = 'auto';
+audio.load();
+
+
+/* ------ Função que controla o evento de Musica ------ */
+
+function handleMusic(audio, music) {
+  music.loop = true;
+  audio.volume = 0.4;
+
+  music.addEventListener('change', () => {
+
+    // verifica se a condição é verdadeira 
+
+    // se elemento check tiver ativo ele toca a musica
+
+    // se não ele para a musica
+
+    music.checked ? audio.play() : audio.pause();
+
+  });
+}
+
+handleMusic(audio, music);
+
+
