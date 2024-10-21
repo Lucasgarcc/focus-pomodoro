@@ -120,6 +120,7 @@ let time = {
 let interval = null;
 let currentType = null; // o tipo de temporizador (foco, curto, longo)
 let isInit = false; // para controlar se o temporizador está inicializando
+let  findPopup = null; 
 
 const start = tag('#start-pause');
 const button = tag('.app__card-primary-button');
@@ -158,8 +159,9 @@ function formatTime(seconds) {
 
 const timer = (typeTime) => {
     if ( time[typeTime] <= 0 ) {
-        if (!findPopup) {  // Verifica se o popup já foi exibido 
-            alert('Temprizador finalizado')
+        if (!findPopup) {  // Verifica se o popup já foi exibido
+            popupShow('Tempo finalizado!', false);  // Mostra o popup
+            findPopup = true;  // Marca como exibido
         }
 
         return;
@@ -199,9 +201,9 @@ function tagTime(target, data) {
         if (!isInit) { // Só permite a troca do tipo de tempo se o temporizador não estiver 
             currentType = data; // Atualiza o tipo de tempo atual com o valor do botão
             console.log(`Tipo de tempo selecionado: ${currentType}`);
-            alert(`Modo trocado para ${currentType} !`);
+            popupShow(`Modo trocado para ${currentType} !`, true);
         } else {
-            alert('Pause o temporizador antes de trocar o modo!');
+            popupShow('Pause o temporizador antes de trocar o modo!', false);
         }
     });
 }
@@ -221,3 +223,91 @@ start.addEventListener('click', () => {
    button.innerHTML = textButton['pause'], isInit = true ) : pauseTimer();
 }) 
     
+
+
+
+// Criando o popup e validando condições boolean  
+
+// função cria estilo 
+function createStyle(element, style) {
+    for (let value in style) {
+        element.style[value] = style[value];
+    }
+}
+
+
+// Função do popup / Acessibilidade no Html
+function popupShow(message, isPopup) {
+    const popupExisting = document.querySelector('.popup');
+    if (popupExisting) popupExisting.remove();
+
+    const overlay = document.createElement('div');
+    const popup = document.createElement('div');
+    const popupMessage = document.createElement('div');
+
+    overlay.className = 'popup-overlay';
+    popup.className = 'popup-content';
+    
+    // Acessibilidade 
+    overlay.setAttribute('aria-label', 'Popup na tela');
+
+    // Validação do popup 
+    if (!isPopup) {
+        popup.classList.add('active');
+        popup.setAttribute('aria-label', 'Popup na tela aviso');
+    
+        popup.classList.add('error');
+    } else {
+        popup.classList.remove('active');
+        popup.setAttribute('aria-label', 'Popup na tela troca de modo'); 
+        popup.classList.add('success');
+    }
+    popupMessage.textContent = message;
+    popupMessage.setAttribute('aria-labelledby', message);
+    popup.appendChild(popupMessage);
+
+    const closeButton = document.createElement('span');
+    closeButton.className = 'popup-close';
+    closeButton.setAttribute('aria-label', 'Fechar popup');
+    
+    closeButton.textContent = '✖';
+
+    // Criando valores como objeto ao closeButton (fecha popup)
+
+    const style = {
+        cursor: 'pointer',  
+        fontSize: '24px',
+        padding: '1.5rem 0',
+        position: 'fixed',
+        color: '#fff', 
+    };
+
+
+    createStyle(closeButton, style);
+    popup.appendChild(closeButton);
+
+    closeButton.addEventListener('click', () => {
+        overlay.classList.remove('active');
+        setTimeout(() => overlay.remove(), 300);
+    });
+
+    overlay.appendChild(popup);
+
+    document.body.appendChild(overlay);
+
+    requestAnimationFrame(() => {
+        overlay.classList.add('active');
+    });
+   
+    // Verifica se o Popup é true criando o efeito de animação
+    // exibindo o popup na tela
+    if (isPopup) {
+        setTimeout(() => {
+            overlay.classList.add('fade-out');
+            setTimeout(() => {
+                // removendo popup após 1s a ser exibido
+                overlay.remove();
+            }, 1000);
+        }, 2000);
+    }
+}
