@@ -109,3 +109,115 @@ function handleMusic(audio, music) {
 handleMusic(audio, music);
 
 
+/* ========== Estrutura de controle do Tempo do POMODORO ========== */
+
+let time = {
+    foco : 26 * 60, // 25 mint
+    curt : 6 * 60, // 5 mint
+    long : 16 * 60 // 15 mint
+};
+
+let interval = null;
+let currentType = null; // o tipo de temporizador (foco, curto, longo)
+let isInit = false; // para controlar se o temporizador está inicializando
+
+const start = tag('#start-pause');
+const button = tag('.app__card-primary-button');
+const listAppCard = document.querySelector('.app__card-timer');
+start.setAttribute('aria-label', 'Botão inicar o temporizador');
+button.setAttribute('aria-label', '');
+
+const textButton = {
+    'start': `<img class="app__card-primary-butto-icon" src="/assets/imagens/play_arrow.png" alt="">
+    <span>Começar</span>`,
+    'pause': `<img class="app__card-primary-butto-icon" src="/assets/imagens/pause.png" alt="">
+    <span>Pausar</span>`
+}
+
+// Sons para os eventos de iniciar e pausar
+
+const startMusic = new Audio('/assets/sons/play.wav');
+const pausaMusic = new Audio('/assets/sons/pause.mp3');
+const warningMusic = new Audio('/assets/sons/beep.mp3');
+
+
+// Função de temporizador
+
+
+function formatTime(seconds) {
+    const min = Math.floor(seconds / 60);
+    const sec = seconds % 60;
+    return ` 
+    <p class="timer" aria-label="Temprizador">
+    ${min.toString().padStart(2, '0')}:
+    ${sec.toString().padStart(2, '0')}
+    </p>
+    `;
+}
+
+
+const timer = (typeTime) => {
+    if ( time[typeTime] <= 0 ) {
+        if (!findPopup) {  // Verifica se o popup já foi exibido 
+            alert('Temprizador finalizado')
+        }
+
+        return;
+    }
+
+    if ( time[typeTime] === 10 ) warningMusic.play();
+            // Atualiza o conteúdo com o tempo formatado (substitui o conteúdo existente)
+            listAppCard.innerHTML = formatTime(time[currentType]);
+    time[typeTime] -= 1;
+}
+
+// Função que inicia a contagem em base do tipo de tempo (foco, curto, longo)
+
+function initTimer(typeTime) {
+
+   interval = setInterval(() => {
+        timer(typeTime)
+    }, 1000)
+  
+}
+
+// Pausa o temporizador
+
+function pauseTimer() {
+    clearInterval(interval);
+    interval = null;
+    isInit = false;
+    button.innerHTML = textButton['start'];
+    pausaMusic.play()
+}
+
+// Função que associa os botões ao controle de tempo
+
+function tagTime(target, data) {
+    target.addEventListener('click', () => {
+        currentType = data;
+        if (!isInit) { // Só permite a troca do tipo de tempo se o temporizador não estiver 
+            currentType = data; // Atualiza o tipo de tempo atual com o valor do botão
+            console.log(`Tipo de tempo selecionado: ${currentType}`);
+            alert(`Modo trocado para ${currentType} !`);
+        } else {
+            alert('Pause o temporizador antes de trocar o modo!');
+        }
+    });
+}
+
+tagTime(foco, 'foco');
+tagTime(curt, 'curt');
+tagTime(long, 'long');
+
+
+// Inica o temporizador quando o botão é clicado
+
+start.addEventListener('click', () => {
+    if(!currentType){
+        currentType = 'foco';
+    }
+    !isInit ? ( startMusic.play(), initTimer(currentType),   
+   button.innerHTML = textButton['pause'], isInit = true ) : pauseTimer();
+}) 
+    
