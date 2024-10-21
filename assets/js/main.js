@@ -247,7 +247,7 @@ function popupShow(message, isPopup) {
 
     overlay.className = 'popup-overlay';
     popup.className = 'popup-content';
-    
+
     // Acessibilidade 
     overlay.setAttribute('aria-label', 'Popup na tela');
 
@@ -263,7 +263,7 @@ function popupShow(message, isPopup) {
         popup.classList.add('success');
     }
     popupMessage.textContent = message;
-    popupMessage.setAttribute('aria-labelledby', message);
+    popupMessage.setAttribute('aria-label', message);
     popup.appendChild(popupMessage);
 
     const closeButton = document.createElement('span');
